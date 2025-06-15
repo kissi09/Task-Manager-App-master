@@ -1,0 +1,110 @@
+﻿@page "/"
+@inject TaskService taskService 
+
+<h1 style="text-align:center; font-weight:bolder; margin-bottom:3rem;">Task Manager</h1>
+
+<div class="Task-section">
+    <label style="font-size:2.5rem; font-family:poppins; font-weight:600; color:#0094ff;">Add Your Task</label>
+    <div>
+    <input class="Input-task-title" @bind="newTaskTitle" placeholder=" Title" />
+    </div>
+    <div>
+        <textarea class="Input-task-desc" @bind="newTaskDescription" placeholder="  Describe your task" cols="50" rows="5"/>
+    </div>
+    <!--<input type="datetime-local" @bind="newTaskDeadline" placeholder="Task Deadline" /> -->
+    <div>
+        @foreach (var category in defaultCategories)
+        {
+            <button class="Task-Cat-btn" @onclick="() => SetCategory(category)">@category</button>
+        }
+    </div>
+    <button class="btn-add" @onclick="AddTask">Add Task</button>
+
+</div>
+
+
+
+<div class="task-grid-cat">
+    @foreach (var category in defaultCategories)
+    {
+        <hr>
+        <h3 style="color:lightgray;">@category Tasks</h3>
+        <div class="task-grid">
+            @foreach (var task in tasks.Where(t => t.Category == category))
+            {
+                <div class="task-box">
+                    <div class="beg">
+                    <p class="create-at">@task.CreatedAt.ToString("yyyy-MM-dd")</p>
+                    <p class="cat">@category</p>
+                    </div>
+                    <h3 class="title">@task.Title</h3>
+                    <!-- Additional task details -->
+                    <!--<div>ID:@task.Id</div> -->
+
+                    <div><p class="Input-fields">@task.Description</p></div>
+
+                    <!--<p>Deadline:@task.Deadline?.ToString("yyyy-MM-dd")</p> -->
+                    <hr style="width:90%">
+                    <div class="checkbox"><input type="checkbox" @bind="task.IsCompleted" /> Completed</div>
+                    <div class="task-box-btn-align">
+                        <button class="task-box-btn" @onclick="() => DeleteTask(task.Id)">Delete</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+@code {
+    private string newTaskTitle = "";
+    private string newTaskDescription = "";
+    private DateTime? newTaskDeadline;
+    private List<TaskModel> tasks;
+
+    private string newTaskCategory = "";
+    private List<string> defaultCategories = new List<string> { "Study", "Personal", "Work", "Church" }; // Add your default categories here
+
+    private void SetCategory(string category) //Method to set category 
+    {
+        newTaskCategory = category;
+    }
+
+    protected override void OnInitialized()
+    {
+        tasks = taskService.GetTasks();
+    }
+
+    private void AddTask()
+    {
+        if (!string.IsNullOrEmpty(newTaskTitle) && !string.IsNullOrEmpty(newTaskCategory))
+        {
+
+            taskService.AddTask(new TaskModel
+                { 
+                    Title = newTaskTitle, 
+                    Description = newTaskDescription,
+                    Category = newTaskCategory
+                });
+
+            newTaskTitle = "";
+            newTaskDescription = "";
+            newTaskCategory = "";
+            tasks = taskService.GetTasks();
+        }
+    }
+
+    private void UpdateTask(TaskModel task)
+    {
+        taskService.UpdateTask(task);
+    }
+
+    private void DeleteTask(int taskId)
+    {
+        taskService.DeleteTask(taskId);
+        tasks = taskService.GetTasks();
+    }
+
+
+
+}

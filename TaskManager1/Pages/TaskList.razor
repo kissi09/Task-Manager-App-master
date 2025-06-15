@@ -1,0 +1,62 @@
+﻿<!-- TaskList.razor -->
+@page "/tasklist/{category}"
+
+<h3>Tasks for @Category</h3>
+
+<div class="task-grid">
+    @foreach (var task in tasks)
+    {
+        if (task.Category == Category)
+        {
+            <div class="task-box">
+                <div class="beg">
+                    <p class="create-at">@task.CreatedAt.ToString("yyyy-MM-dd")</p>
+                    <p class="cat">@Category</p>
+            </div>
+            <h3 class="title">@task.Title</h3>
+            <!-- Additional task details -->
+            <!--<div>ID:@task.Id</div> -->
+
+            <div><p class="Input-fields">@task.Description</p></div>
+
+            <!--<p>Deadline:@task.Deadline?.ToString("yyyy-MM-dd")</p> -->
+            <hr style="width:90%">
+            <div class="checkbox"><input type="checkbox" @bind="task.IsCompleted" /> Completed</div>
+            <div class="task-box-btn-align">
+                <button class="task-box-btn" @onclick="() => DeleteTask(task.Id)">Delete</button>
+            </div>
+        </div>
+      
+    }
+
+}
+</div>
+
+@code {
+    [Parameter]
+    public string Category { get; set; }
+
+
+    // You can use dependency injection to get the TaskService
+    [Inject]
+    private TaskService taskService { get; set; }
+
+    private List<TaskModel> tasks;
+
+    protected override void OnInitialized()
+    {
+        tasks = taskService.GetTasks();
+    }
+
+    private void UpdateTask(TaskModel task)
+    {
+        taskService.UpdateTask(task);
+    }
+
+    private void DeleteTask(int taskId)
+    {
+        taskService.DeleteTask(taskId);
+        tasks = taskService.GetTasks();
+    }
+}
+

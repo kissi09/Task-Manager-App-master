@@ -1,0 +1,63 @@
+﻿@page "/Calendar"
+
+<h3>Calendar</h3>
+
+<div class="calendar-container">
+<div class="calendar">
+    <!-- Your calendar content goes here -->
+    <div class="header">
+        <button class="cal-btn" @onclick="PreviousMonth">Previous</button>
+        <h4>@currentMonth.Year - @currentMonth.Month</h4>
+        <button class="cal-btn" @onclick="NextMonth">Next</button>
+    </div>
+    <div class="days">
+        @foreach (var day in daysInMonth)
+        {
+            <div>@day.Day</div>
+        }
+    </div>
+</div>
+</div>
+
+
+@code {
+	private DateTime currentMonth = DateTime.Today;
+    private List<DateTime> daysInMonth;
+
+    protected override void OnInitialized()
+    {
+        RefreshCalendar();
+    }
+
+    private void NextMonth()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+        RefreshCalendar();
+    }
+
+    private void PreviousMonth()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+        RefreshCalendar();
+    }
+
+    private void RefreshCalendar()
+    {
+        daysInMonth = GetDaysInMonth(currentMonth.Year, currentMonth.Month);
+    }
+
+    private List<DateTime> GetDaysInMonth(int year, int month)
+    {
+        var daysInMonth = new List<DateTime>();
+        var firstDayOfMonth = new DateTime(year, month, 1);
+        var lastDayOfMonth = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+        for (var date = firstDayOfMonth; date <= lastDayOfMonth; date = date.AddDays(1))
+        {
+            daysInMonth.Add(date);
+        }
+
+        return daysInMonth;
+    }
+}
+
